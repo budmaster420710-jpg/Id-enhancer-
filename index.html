@@ -3,194 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ID_STATION | FORENSIC_V7</title>
+    <title>ID_STATION | FORENSIC_PRO_V8</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #0d0e14; --panel: #1a1b26; --text: #a9b1d6; }
+        :root { --neon: #00ffcc; --bg: #0d0e14; --panel: #16161e; --text: #a9b1d6; }
+        * { box-sizing: border-box; }
         body { 
             background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; 
-            margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+            margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden;
         }
-        
-        /* HEADER */
-        .top-bar { 
-            background: var(--panel); padding: 10px 20px; border-bottom: 1px solid #24283b;
-            display: flex; justify-content: space-between; align-items: center; z-index: 10;
-        }
-        h1 { color: var(--neon); font-size: 0.7rem; margin: 0; letter-spacing: 3px; }
 
-        /* WORKSPACE */
-        .workspace { display: flex; flex: 1; overflow: hidden; }
-        
-        /* SIDEBAR CONTROLS */
-        .controls { 
-            width: 320px; background: var(--panel); border-right: 1px solid #24283b;
-            padding: 20px; display: flex; flex-direction: column; gap: 20px; box-sizing: border-box;
+        /* LEFT SIDE: TOOLS */
+        .sidebar { 
+            width: 350px; background: var(--panel); border-right: 2px solid #24283b;
+            display: flex; flex-direction: column; padding: 25px; overflow-y: auto;
         }
-        .module { background: #16161e; padding: 15px; border-radius: 8px; border: 1px solid #2f334d; }
-        label { display: flex; justify-content: space-between; font-size: 0.6rem; color: #565f89; margin-bottom: 10px; }
-        label span { color: var(--neon); }
+        h1 { color: var(--neon); font-size: 0.75rem; margin: 0 0 25px 0; letter-spacing: 2px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+
+        .mod { background: #1a1b26; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #2f334d; }
+        label { display: flex; justify-content: space-between; font-size: 0.65rem; color: #565f89; margin-bottom: 10px; text-transform: uppercase; }
+        label span { color: var(--neon); font-weight: bold; }
         input[type=range] { width: 100%; accent-color: var(--neon); cursor: pointer; }
-        
-        /* VIEWER AREA */
-        .viewer { 
-            flex: 1; background: #050505; display: flex; align-items: center; 
-            justify-content: center; padding: 40px; position: relative; overflow: auto;
-        }
-        .canvas-wrapper { 
-            position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.5); 
-            border: 1px solid #333; line-height: 0; 
-        }
-        canvas { max-width: 100%; max-height: 85vh; object-fit: contain; background: #000; }
 
-        /* ACTIONS */
         .btn { 
-            padding: 15px; border: none; border-radius: 4px; font-weight: bold; 
-            cursor: pointer; font-family: inherit; text-transform: uppercase; font-size: 0.7rem;
-            transition: 0.2s;
+            width: 100%; padding: 15px; border: none; border-radius: 6px; font-weight: bold; 
+            cursor: pointer; font-family: inherit; text-transform: uppercase; font-size: 0.75rem;
+            margin-bottom: 10px; transition: 0.2s;
         }
-        .btn-load { background: #414868; color: white; margin-bottom: 10px; }
-        .btn-save { background: var(--neon); color: #0b0b10; }
-        .btn:hover { filter: brightness(1.2); }
+        .btn-load { background: #414868; color: white; }
+        .btn-save { background: var(--neon); color: #0b0b10; box-shadow: 0 4px 15px rgba(0, 255, 204, 0.2); }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        .hint { font-size: 10px; color: #444; margin-top: 5px; text-align: center; }
+        /* RIGHT SIDE: THE ACTUAL VIEWER */
+        .viewer-container { 
+            flex: 1; background: #050505; position: relative;
+            display: flex; align-items: center; justify-content: center;
+            overflow: auto; padding: 40px;
+        }
+        #view { 
+            background-image: linear-gradient(45deg, #111 25%, transparent 25%), 
+                              linear-gradient(-45deg, #111 25%, transparent 25%), 
+                              linear-gradient(45deg, transparent 75%, #111 75%), 
+                              linear-gradient(-45deg, transparent 75%, #111 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            border: 1px solid #333;
+            max-width: 100%;
+            display: none; /* Hidden until image loads */
+            box-shadow: 0 0 100px rgba(0,0,0,1);
+        }
+        #placeholder { color: #333; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 5px; }
     </style>
 </head>
 <body>
 
-<div class="top-bar">
-    <h1>[ CODY_RECOVERY_ENGINE_V7 ]</h1>
-    <div id="status" style="font-size: 0.6rem; color: var(--neon);">SYSTEM_READY</div>
-</div>
+<aside class="sidebar">
+    <h1>[ TEXT_ISOLATION_LAB ]</h1>
+    
+    <input type="file" id="fileIn" style="display:none" accept="image/*">
+    <button class="btn btn-load" onclick="document.getElementById('fileIn').click()">1. Select ID Photo</button>
 
-<div class="workspace">
-    <aside class="controls">
-        <input type="file" id="fileIn" style="display:none" accept="image/*">
-        <button class="btn btn-load" onclick="document.getElementById('fileIn').click()">1. Load Source ID</button>
-        
-        <div class="module">
-            <label>Ink Extraction (Contrast) <span id="v-ink">1.0</span></label>
-            <input type="range" id="ink" min="1" max="4" step="0.1" value="1">
-        </div>
+    <div class="mod">
+        <label>Ink Contrast <span id="v-ink">1.0</span></label>
+        <input type="range" id="ink" min="1" max="4" step="0.1" value="1">
+    </div>
 
-        <div class="module">
-            <label>Face Protection <span id="v-protect">On</span></label>
-            <input type="range" id="protect" min="0" max="1" step="0.05" value="0.9">
-        </div>
+    <div class="mod">
+        <label>Face Protection <span id="v-protect">Max</span></label>
+        <input type="range" id="protect" min="0" max="1" step="0.05" value="1">
+    </div>
 
-        <div class="module">
-            <label>Text Edge Sharpness <span id="v-edge">0</span></label>
-            <input type="range" id="edge" min="0" max="100" value="0">
-        </div>
+    <div class="mod">
+        <label>Text Sharpen <span id="v-edge">0</span></label>
+        <input type="range" id="edge" min="0" max="100" value="0">
+    </div>
 
-        <div class="module">
-            <label>Laminate Glare Reduction <span id="v-glint">0</span></label>
-            <input type="range" id="glint" min="0" max="100" value="0">
-        </div>
+    <div class="mod">
+        <label>Brightness <span id="v-bright">0</span></label>
+        <input type="range" id="bright" min="-100" max="100" value="0">
+    </div>
 
-        <button class="btn btn-save" onclick="exportFinal()">2. Export Forensic PNG</button>
-        <div class="hint">Processing is performed locally on your device.</div>
-    </aside>
+    <button class="btn btn-save" onclick="exportFinal()">2. Export Result</button>
+</aside>
 
-    <main class="viewer">
-        <div class="canvas-wrapper" id="wrapper">
-            <canvas id="view"></canvas>
-        </div>
-    </main>
-</div>
+<main class="viewer-container">
+    <div id="placeholder">NO SOURCE DETECTED</div>
+    <canvas id="view"></canvas>
+</main>
 
 <script>
     const canvas = document.getElementById('view');
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    let raw = null;
+    let originalData = null;
 
     document.getElementById('fileIn').onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
         const reader = new FileReader();
         reader.onload = (f) => {
             const img = new Image();
             img.onload = () => {
-                // Architectural sizing: Keep quality but fit the UI
-                const maxDim = 2000;
+                // Ensure visibility
+                document.getElementById('placeholder').style.display = 'none';
+                canvas.style.display = 'block';
+
+                // Set internal resolution
+                const maxDim = 1800;
                 let w = img.width, h = img.height;
                 if (w > maxDim) { h *= maxDim/w; w = maxDim; }
                 
                 canvas.width = w;
                 canvas.height = h;
-                ctx.drawImage(img, 0, 0, w, h);
-                raw = ctx.getImageData(0, 0, w, h);
                 
-                document.getElementById('status').innerText = `LIVE: ${w}x${h}`;
+                // Draw and Save
+                ctx.drawImage(img, 0, 0, w, h);
+                originalData = ctx.getImageData(0, 0, w, h);
                 process();
             };
             img.src = f.target.result;
         };
-        reader.readAsDataURL(e.target.files[0]);
+        reader.readAsDataURL(file);
     };
 
     function process() {
-        if (!raw) return;
+        if (!originalData) return;
 
-        const inkVal = parseFloat(document.getElementById('ink').value);
-        const protVal = parseFloat(document.getElementById('protect').value);
-        const edgeVal = parseInt(document.getElementById('edge').value);
-        const glintVal = parseInt(document.getElementById('glint').value);
+        const ink = parseFloat(document.getElementById('ink').value);
+        const prot = parseFloat(document.getElementById('protect').value);
+        const edge = parseInt(document.getElementById('edge').value);
+        const bright = parseInt(document.getElementById('bright').value);
 
-        // Update Labels
-        document.getElementById('v-ink').innerText = inkVal.toFixed(1);
-        document.getElementById('v-edge').innerText = edgeVal;
+        // UI Updates
+        document.getElementById('v-ink').innerText = ink.toFixed(1);
+        document.getElementById('v-edge').innerText = edge;
+        document.getElementById('v-bright').innerText = bright;
 
-        const out = new ImageData(new Uint8ClampedArray(raw.data), raw.width, raw.height);
-        const d = out.data;
+        const buffer = new ImageData(new Uint8ClampedArray(originalData.data), canvas.width, canvas.height);
+        const d = buffer.data;
 
         for (let i = 0; i < d.length; i += 4) {
             let r = d[i], g = d[i+1], b = d[i+2];
-            
-            // Detect Skin (Normalized Chromaticity)
+
+            // 1. Skin Detection (Face Protection)
             const sum = r + g + b;
             const nr = r / sum, ng = g / sum;
-            const isSkin = (nr > 0.33 && nr < 0.5 && ng > 0.28 && ng < 0.38);
+            const isSkin = (nr > 0.33 && nr < 0.52 && ng > 0.28 && ng < 0.39);
 
-            // Calculate Luma
-            let luma = 0.299*r + 0.587*g + 0.114*b;
+            // 2. Grayscale/Luma conversion
+            let gray = 0.299*r + 0.587*g + 0.114*b;
+            gray += bright;
 
             if (!isSkin) {
-                // Apply Non-Linear Ink Isolation
-                let v = Math.pow(luma / 255, inkVal) * 255;
-                
-                // Glint Suppression (highlights)
-                if (v > 200) v -= (v - 200) * (glintVal / 100);
-
-                // Blend based on Protection slider
-                d[i] = d[i+1] = d[i+2] = v;
+                // Apply Heavy Text Isolation
+                let v = Math.pow(Math.max(0, gray) / 255, ink) * 255;
+                d[i] = d[i+1] = d[i+2] = Math.min(255, v);
             } else {
-                // Protect the face area by blending original back in
-                const p = protVal;
-                d[i] = r * p + (luma * (1-p));
-                d[i+1] = g * p + (luma * (1-p));
-                d[i+2] = b * p + (luma * (1-p));
+                // Blend protection
+                d[i] = (r * prot) + (gray * (1 - prot));
+                d[i+1] = (g * prot) + (gray * (1 - prot));
+                d[i+2] = (b * prot) + (gray * (1 - prot));
             }
         }
 
-        ctx.putImageData(out, 0, 0);
+        ctx.putImageData(buffer, 0, 0);
 
-        // Post-Process Edge Sharpness
-        if (edgeVal > 0) {
+        // 3. Final Edge Overlay
+        if (edge > 0) {
             ctx.globalCompositeOperation = 'overlay';
-            ctx.filter = `contrast(${100 + edgeVal}%) brightness(95%)`;
+            ctx.filter = `contrast(${100 + edge}%) brightness(95%)`;
             ctx.drawImage(canvas, 0, 0);
             ctx.globalCompositeOperation = 'source-over';
             ctx.filter = 'none';
         }
     }
 
-    // Bind all inputs
-    ['ink', 'protect', 'edge', 'glint'].forEach(id => {
+    // Input listeners
+    ['ink', 'protect', 'edge', 'bright'].forEach(id => {
         document.getElementById(id).oninput = process;
     });
 
     function exportFinal() {
-        if (!raw) return;
+        if (!originalData) return;
         const link = document.createElement('a');
-        link.download = `FORENSIC_ID_EXPORT_${Date.now()}.png`;
+        link.download = `VERIFIED_TEXT_${Date.now()}.png`;
         link.href = canvas.toDataURL('image/png', 1.0);
         link.click();
     }
