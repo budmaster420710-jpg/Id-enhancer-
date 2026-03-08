@@ -3,80 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ID_STATION | SMART_ISOLATION_V6</title>
+    <title>ID_STATION | FORENSIC_V7</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #0a0b10; --panel: #16161e; --text: #787c99; }
-        body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .frame { background: var(--panel); border: 1px solid #24283b; padding: 20px; border-radius: 12px; width: 95%; max-width: 1000px; box-shadow: 0 10px 40px #000; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #24283b; padding-bottom: 10px; }
-        h1 { color: var(--neon); font-size: 0.8rem; margin: 0; letter-spacing: 2px; }
+        :root { --neon: #00ffcc; --bg: #0d0e14; --panel: #1a1b26; --text: #a9b1d6; }
+        body { 
+            background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; 
+            margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+        }
         
-        .main-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
-        .control-panel { display: flex; flex-direction: column; gap: 15px; }
-        .mod { background: #1a1b26; padding: 12px; border-radius: 6px; border: 1px solid #2f334d; }
-        label { display: block; font-size: 0.6rem; margin-bottom: 8px; color: #565f89; text-transform: uppercase; }
-        input[type=range] { width: 100%; accent-color: var(--neon); }
+        /* HEADER */
+        .top-bar { 
+            background: var(--panel); padding: 10px 20px; border-bottom: 1px solid #24283b;
+            display: flex; justify-content: space-between; align-items: center; z-index: 10;
+        }
+        h1 { color: var(--neon); font-size: 0.7rem; margin: 0; letter-spacing: 3px; }
+
+        /* WORKSPACE */
+        .workspace { display: flex; flex: 1; overflow: hidden; }
         
-        canvas { width: 100%; border-radius: 4px; background: #000; cursor: crosshair; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; font-size: 0.7rem; }
-        .btn-in { background: #414868; color: #fff; }
-        .btn-out { background: var(--neon); color: #0b0b10; }
-        .badge { background: #f7768e; color: #000; padding: 2px 5px; font-size: 0.5rem; border-radius: 3px; font-weight: bold; }
+        /* SIDEBAR CONTROLS */
+        .controls { 
+            width: 320px; background: var(--panel); border-right: 1px solid #24283b;
+            padding: 20px; display: flex; flex-direction: column; gap: 20px; box-sizing: border-box;
+        }
+        .module { background: #16161e; padding: 15px; border-radius: 8px; border: 1px solid #2f334d; }
+        label { display: flex; justify-content: space-between; font-size: 0.6rem; color: #565f89; margin-bottom: 10px; }
+        label span { color: var(--neon); }
+        input[type=range] { width: 100%; accent-color: var(--neon); cursor: pointer; }
+        
+        /* VIEWER AREA */
+        .viewer { 
+            flex: 1; background: #050505; display: flex; align-items: center; 
+            justify-content: center; padding: 40px; position: relative; overflow: auto;
+        }
+        .canvas-wrapper { 
+            position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.5); 
+            border: 1px solid #333; line-height: 0; 
+        }
+        canvas { max-width: 100%; max-height: 85vh; object-fit: contain; background: #000; }
+
+        /* ACTIONS */
+        .btn { 
+            padding: 15px; border: none; border-radius: 4px; font-weight: bold; 
+            cursor: pointer; font-family: inherit; text-transform: uppercase; font-size: 0.7rem;
+            transition: 0.2s;
+        }
+        .btn-load { background: #414868; color: white; margin-bottom: 10px; }
+        .btn-save { background: var(--neon); color: #0b0b10; }
+        .btn:hover { filter: brightness(1.2); }
+
+        .hint { font-size: 10px; color: #444; margin-top: 5px; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="frame">
-    <div class="header">
-        <h1>CODY_ARCH: TEXT_PRO_ISOLATION <span class="badge">FACE PROTECT ACTIVE</span></h1>
-        <div id="status" style="font-size: 0.6rem;">IDLE</div>
-    </div>
+<div class="top-bar">
+    <h1>[ CODY_RECOVERY_ENGINE_V7 ]</h1>
+    <div id="status" style="font-size: 0.6rem; color: var(--neon);">SYSTEM_READY</div>
+</div>
 
-    <div class="main-grid">
-        <aside class="control-panel">
-            <div class="mod">
-                <label>Text Ink Intensity</label>
-                <input type="range" id="ink" min="0" max="100" value="0">
-            </div>
-            <div class="mod">
-                <label>OCR Edge Sharpen</label>
-                <input type="range" id="edge" min="0" max="100" value="0">
-            </div>
-            <div class="mod">
-                <label>Face/Skin Protection</label>
-                <input type="range" id="protect" min="0" max="100" value="85">
-            </div>
-            <div class="mod">
-                <label>Glint Suppression</label>
-                <input type="range" id="glint" min="0" max="100" value="20">
-            </div>
-            
-            <input type="file" id="fileIn" style="display:none" accept="image/*">
-            <button class="btn btn-in" onclick="document.getElementById('fileIn').click()">Import Document</button>
-            <button class="btn btn-out" onclick="exportFinal()">Save Forensic Copy</button>
-        </aside>
+<div class="workspace">
+    <aside class="controls">
+        <input type="file" id="fileIn" style="display:none" accept="image/*">
+        <button class="btn btn-load" onclick="document.getElementById('fileIn').click()">1. Load Source ID</button>
+        
+        <div class="module">
+            <label>Ink Extraction (Contrast) <span id="v-ink">1.0</span></label>
+            <input type="range" id="ink" min="1" max="4" step="0.1" value="1">
+        </div>
 
-        <div class="viewer">
+        <div class="module">
+            <label>Face Protection <span id="v-protect">On</span></label>
+            <input type="range" id="protect" min="0" max="1" step="0.05" value="0.9">
+        </div>
+
+        <div class="module">
+            <label>Text Edge Sharpness <span id="v-edge">0</span></label>
+            <input type="range" id="edge" min="0" max="100" value="0">
+        </div>
+
+        <div class="module">
+            <label>Laminate Glare Reduction <span id="v-glint">0</span></label>
+            <input type="range" id="glint" min="0" max="100" value="0">
+        </div>
+
+        <button class="btn btn-save" onclick="exportFinal()">2. Export Forensic PNG</button>
+        <div class="hint">Processing is performed locally on your device.</div>
+    </aside>
+
+    <main class="viewer">
+        <div class="canvas-wrapper" id="wrapper">
             <canvas id="view"></canvas>
         </div>
-    </div>
+    </main>
 </div>
 
 <script>
     const canvas = document.getElementById('view');
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    let originalData = null;
+    let raw = null;
 
     document.getElementById('fileIn').onchange = (e) => {
         const reader = new FileReader();
         reader.onload = (f) => {
             const img = new Image();
             img.onload = () => {
-                const scale = Math.min(1800 / img.width, 1);
-                canvas.width = img.width * scale;
-                canvas.height = img.height * scale;
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                originalData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                // Architectural sizing: Keep quality but fit the UI
+                const maxDim = 2000;
+                let w = img.width, h = img.height;
+                if (w > maxDim) { h *= maxDim/w; w = maxDim; }
+                
+                canvas.width = w;
+                canvas.height = h;
+                ctx.drawImage(img, 0, 0, w, h);
+                raw = ctx.getImageData(0, 0, w, h);
+                
+                document.getElementById('status').innerText = `LIVE: ${w}x${h}`;
                 process();
             };
             img.src = f.target.result;
@@ -85,68 +127,70 @@
     };
 
     function process() {
-        if (!originalData) return;
+        if (!raw) return;
 
-        const ink = document.getElementById('ink').value / 50;
-        const edge = document.getElementById('edge').value / 25;
-        const protect = document.getElementById('protect').value / 100;
-        const glint = document.getElementById('glint').value / 100;
+        const inkVal = parseFloat(document.getElementById('ink').value);
+        const protVal = parseFloat(document.getElementById('protect').value);
+        const edgeVal = parseInt(document.getElementById('edge').value);
+        const glintVal = parseInt(document.getElementById('glint').value);
 
-        const buffer = new ImageData(new Uint8ClampedArray(originalData.data), canvas.width, canvas.height);
-        const d = buffer.data;
+        // Update Labels
+        document.getElementById('v-ink').innerText = inkVal.toFixed(1);
+        document.getElementById('v-edge').innerText = edgeVal;
+
+        const out = new ImageData(new Uint8ClampedArray(raw.data), raw.width, raw.height);
+        const d = out.data;
 
         for (let i = 0; i < d.length; i += 4) {
-            const r = d[i], g = d[i+1], b = d[i+2];
+            let r = d[i], g = d[i+1], b = d[i+2];
             
-            // 1. SKIN DETECTION LOGIC (Normalized Chromaticity)
-            // Human skin usually falls in this ratio regardless of race
+            // Detect Skin (Normalized Chromaticity)
             const sum = r + g + b;
-            const nr = r / sum;
-            const ng = g / sum;
-            const isSkin = (nr > 0.35 && nr < 0.55 && ng > 0.25 && ng < 0.4);
-            
-            // 2. TEXT LUMINANCE (Weighted)
-            let lum = 0.299*r + 0.587*g + 0.114*b;
-            
-            // 3. TARGETED PROCESSING
-            // If it's NOT skin, apply the forensic filter
-            if (!isSkin || protect < 0.5) {
-                // Ink Extraction: Darken lower ranges, preserve upper
-                let factor = Math.pow(lum / 255, 1 + ink);
-                let v = factor * 255;
+            const nr = r / sum, ng = g / sum;
+            const isSkin = (nr > 0.33 && nr < 0.5 && ng > 0.28 && ng < 0.38);
 
-                // Glint Suppression: Cap the peaks
-                if (v > 220) v -= (v - 220) * glint;
+            // Calculate Luma
+            let luma = 0.299*r + 0.587*g + 0.114*b;
 
-                // Apply protection blending
-                const blend = 1 - protect;
-                d[i] = r * protect + v * blend;
-                d[i+1] = g * protect + v * blend;
-                d[i+2] = b * protect + v * blend;
+            if (!isSkin) {
+                // Apply Non-Linear Ink Isolation
+                let v = Math.pow(luma / 255, inkVal) * 255;
+                
+                // Glint Suppression (highlights)
+                if (v > 200) v -= (v - 200) * (glintVal / 100);
+
+                // Blend based on Protection slider
+                d[i] = d[i+1] = d[i+2] = v;
+            } else {
+                // Protect the face area by blending original back in
+                const p = protVal;
+                d[i] = r * p + (luma * (1-p));
+                d[i+1] = g * p + (luma * (1-p));
+                d[i+2] = b * p + (luma * (1-p));
             }
         }
 
-        ctx.putImageData(buffer, 0, 0);
+        ctx.putImageData(out, 0, 0);
 
-        // 4. EDGE SHARPENING PASS (Only on Text regions)
-        if (edge > 0) {
+        // Post-Process Edge Sharpness
+        if (edgeVal > 0) {
             ctx.globalCompositeOperation = 'overlay';
-            ctx.filter = `contrast(150%) brightness(90%) blur(0.5px)`;
+            ctx.filter = `contrast(${100 + edgeVal}%) brightness(95%)`;
             ctx.drawImage(canvas, 0, 0);
             ctx.globalCompositeOperation = 'source-over';
-            ctx.filter = `none`;
+            ctx.filter = 'none';
         }
-        
-        document.getElementById('status').innerText = "V6_SHARP_ACTIVE";
     }
 
-    ['ink', 'edge', 'protect', 'glint'].forEach(id => {
+    // Bind all inputs
+    ['ink', 'protect', 'edge', 'glint'].forEach(id => {
         document.getElementById(id).oninput = process;
     });
 
     function exportFinal() {
+        if (!raw) return;
         const link = document.createElement('a');
-        link.download = `VERIFIED_TEXT_${Date.now()}.png`;
+        link.download = `FORENSIC_ID_EXPORT_${Date.now()}.png`;
         link.href = canvas.toDataURL('image/png', 1.0);
         link.click();
     }
