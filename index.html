@@ -3,139 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J-BIRD | ID FORENSIC STATION</title>
+    <title>ID_STATION | SMART_ISOLATION_V6</title>
     <style>
-        :root { --neon: #7aa2f7; --bg: #1a1b26; --panel: #24283b; --text: #c0caf5; --accent: #bb9af7; }
-        body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
-        .terminal { background: var(--panel); border: 2px solid #414868; padding: 20px; border-radius: 8px; box-shadow: 0 0 40px rgba(0,0,0,0.8); width: 100%; max-width: 700px; }
-        h1 { color: var(--neon); font-size: 1.2rem; margin: 0 0 15px 0; border-bottom: 1px solid #414868; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 3px; }
+        :root { --neon: #00ffcc; --bg: #0a0b10; --panel: #16161e; --text: #787c99; }
+        body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .frame { background: var(--panel); border: 1px solid #24283b; padding: 20px; border-radius: 12px; width: 95%; max-width: 1000px; box-shadow: 0 10px 40px #000; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #24283b; padding-bottom: 10px; }
+        h1 { color: var(--neon); font-size: 0.8rem; margin: 0; letter-spacing: 2px; }
         
-        /* THE COMMAND DECK */
-        .deck { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-        .control { background: #16161e; padding: 10px; border: 1px solid #414868; border-radius: 4px; }
-        label { display: block; font-size: 0.7rem; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
-        input[type=range] { width: 100%; cursor: pointer; accent-color: var(--neon); }
+        .main-grid { display: grid; grid-template-columns: 280px 1fr; gap: 20px; }
+        .control-panel { display: flex; flex-direction: column; gap: 15px; }
+        .mod { background: #1a1b26; padding: 12px; border-radius: 6px; border: 1px solid #2f334d; }
+        label { display: block; font-size: 0.6rem; margin-bottom: 8px; color: #565f89; text-transform: uppercase; }
+        input[type=range] { width: 100%; accent-color: var(--neon); }
         
-        /* FILE UPLOAD & ACTIONS */
-        .actions { display: flex; gap: 10px; margin-bottom: 20px; }
-        .btn { flex: 1; padding: 15px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-family: inherit; transition: 0.2s; }
-        .btn-upload { background: var(--neon); color: #1a1b26; }
-        .btn-save { background: #9ece6a; color: #1a1b26; }
-        
-        canvas { width: 100%; height: auto; border: 1px solid #000; background: #000; border-radius: 4px; margin-top: 10px; }
-        .status { margin-top: 10px; font-size: 0.7rem; color: #565f89; border-top: 1px solid #414868; padding-top: 10px; }
+        canvas { width: 100%; border-radius: 4px; background: #000; cursor: crosshair; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; font-size: 0.7rem; }
+        .btn-in { background: #414868; color: #fff; }
+        .btn-out { background: var(--neon); color: #0b0b10; }
+        .badge { background: #f7768e; color: #000; padding: 2px 5px; font-size: 0.5rem; border-radius: 3px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="terminal">
-    <h1>[ ID_FORENSIC_COMMAND_V2 ]</h1>
-    
-    <div class="deck">
-        <div class="control">
-            <label>Shadow/Highlights (Exp)</label>
-            <input type="range" id="exp" min="-100" max="100" value="0">
-        </div>
-        <div class="control">
-            <label>Ink Density (Contrast)</label>
-            <input type="range" id="con" min="-100" max="100" value="0">
-        </div>
-        <div class="control">
-            <label>Edge Definition (Sharpen)</label>
-            <input type="range" id="shrp" min="0" max="100" value="0">
-        </div>
-        <div class="control">
-            <label>Laminate De-Noise</label>
-            <input type="range" id="noise" min="0" max="50" value="0">
-        </div>
-        <div class="control">
-            <label>Color Purity (Saturate)</label>
-            <input type="range" id="sat" min="0" max="200" value="100">
-        </div>
-        <div class="control">
-            <label>Warmth (White Bal)</label>
-            <input type="range" id="temp" min="-50" max="50" value="0">
-        </div>
+<div class="frame">
+    <div class="header">
+        <h1>CODY_ARCH: TEXT_PRO_ISOLATION <span class="badge">FACE PROTECT ACTIVE</span></h1>
+        <div id="status" style="font-size: 0.6rem;">IDLE</div>
     </div>
 
-    <input type="file" id="fileInput" style="display:none" accept="image/*">
-    <div class="actions">
-        <button class="btn btn-upload" onclick="document.getElementById('fileInput').click()">Upload Source Photo</button>
-        <button class="btn btn-save" onclick="download()">Export Forensic PNG</button>
-    </div>
+    <div class="main-grid">
+        <aside class="control-panel">
+            <div class="mod">
+                <label>Text Ink Intensity</label>
+                <input type="range" id="ink" min="0" max="100" value="0">
+            </div>
+            <div class="mod">
+                <label>OCR Edge Sharpen</label>
+                <input type="range" id="edge" min="0" max="100" value="0">
+            </div>
+            <div class="mod">
+                <label>Face/Skin Protection</label>
+                <input type="range" id="protect" min="0" max="100" value="85">
+            </div>
+            <div class="mod">
+                <label>Glint Suppression</label>
+                <input type="range" id="glint" min="0" max="100" value="20">
+            </div>
+            
+            <input type="file" id="fileIn" style="display:none" accept="image/*">
+            <button class="btn btn-in" onclick="document.getElementById('fileIn').click()">Import Document</button>
+            <button class="btn btn-out" onclick="exportFinal()">Save Forensic Copy</button>
+        </aside>
 
-    <canvas id="view"></canvas>
-    <div class="status" id="log">> SYSTEM READY: Upload ID photo to begin forensics.</div>
+        <div class="viewer">
+            <canvas id="view"></canvas>
+        </div>
+    </div>
 </div>
 
 <script>
-    const fileInput = document.getElementById('fileInput');
     const canvas = document.getElementById('view');
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    const log = document.getElementById('log');
-    let original = null;
+    let originalData = null;
 
-    fileInput.onchange = (e) => {
+    document.getElementById('fileIn').onchange = (e) => {
         const reader = new FileReader();
-        reader.onload = (event) => {
+        reader.onload = (f) => {
             const img = new Image();
             img.onload = () => {
-                const maxDim = 2000; // High-res forensic grade
-                let w = img.width, h = img.height;
-                if (w > maxDim) { h *= maxDim/w; w = maxDim; }
-                canvas.width = w; canvas.height = h;
-                ctx.drawImage(img, 0, 0, w, h);
-                original = ctx.getImageData(0, 0, w, h);
-                log.innerText = `> LOADED: ${w}x${h} | Commencing scan...`;
-                update();
+                const scale = Math.min(1800 / img.width, 1);
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                originalData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                process();
             };
-            img.src = event.target.result;
+            img.src = f.target.result;
         };
         reader.readAsDataURL(e.target.files[0]);
     };
 
-    function update() {
-        if (!original) return;
-        const e = parseInt(document.getElementById('exp').value);
-        const c = parseInt(document.getElementById('con').value);
-        const s = parseInt(document.getElementById('shrp').value);
-        const n = parseInt(document.getElementById('noise').value);
-        const sat = parseInt(document.getElementById('sat').value);
+    function process() {
+        if (!originalData) return;
 
-        const out = new ImageData(new Uint8ClampedArray(original.data), original.width, original.height);
-        const d = out.data;
-        const f = (259 * (c + 255)) / (255 * (259 - c));
+        const ink = document.getElementById('ink').value / 50;
+        const edge = document.getElementById('edge').value / 25;
+        const protect = document.getElementById('protect').value / 100;
+        const glint = document.getElementById('glint').value / 100;
+
+        const buffer = new ImageData(new Uint8ClampedArray(originalData.data), canvas.width, canvas.height);
+        const d = buffer.data;
 
         for (let i = 0; i < d.length; i += 4) {
-            for (let j = 0; j < 3; j++) {
-                let v = d[i+j] + e; // Exposure
-                v = f * (v - 128) + 128; // Contrast
-                d[i+j] = Math.max(0, Math.min(255, v));
+            const r = d[i], g = d[i+1], b = d[i+2];
+            
+            // 1. SKIN DETECTION LOGIC (Normalized Chromaticity)
+            // Human skin usually falls in this ratio regardless of race
+            const sum = r + g + b;
+            const nr = r / sum;
+            const ng = g / sum;
+            const isSkin = (nr > 0.35 && nr < 0.55 && ng > 0.25 && ng < 0.4);
+            
+            // 2. TEXT LUMINANCE (Weighted)
+            let lum = 0.299*r + 0.587*g + 0.114*b;
+            
+            // 3. TARGETED PROCESSING
+            // If it's NOT skin, apply the forensic filter
+            if (!isSkin || protect < 0.5) {
+                // Ink Extraction: Darken lower ranges, preserve upper
+                let factor = Math.pow(lum / 255, 1 + ink);
+                let v = factor * 255;
+
+                // Glint Suppression: Cap the peaks
+                if (v > 220) v -= (v - 220) * glint;
+
+                // Apply protection blending
+                const blend = 1 - protect;
+                d[i] = r * protect + v * blend;
+                d[i+1] = g * protect + v * blend;
+                d[i+2] = b * protect + v * blend;
             }
         }
-        ctx.putImageData(out, 0, 0);
 
-        // Professional Sharpening & Noise Pass
-        if (s > 0 || n > 0 || sat !== 100) {
-            ctx.globalAlpha = s / 100;
-            ctx.filter = `saturate(${sat}%) blur(${n/10}px) brightness(105%)`;
+        ctx.putImageData(buffer, 0, 0);
+
+        // 4. EDGE SHARPENING PASS (Only on Text regions)
+        if (edge > 0) {
+            ctx.globalCompositeOperation = 'overlay';
+            ctx.filter = `contrast(150%) brightness(90%) blur(0.5px)`;
             ctx.drawImage(canvas, 0, 0);
-            ctx.globalAlpha = 1.0;
-            ctx.filter = 'none';
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.filter = `none`;
         }
-        log.innerText = `> STATUS: Filters applied successfully.`;
+        
+        document.getElementById('status').innerText = "V6_SHARP_ACTIVE";
     }
 
-    ['exp', 'con', 'shrp', 'noise', 'sat', 'temp'].forEach(id => {
-        document.getElementById(id).oninput = update;
+    ['ink', 'edge', 'protect', 'glint'].forEach(id => {
+        document.getElementById(id).oninput = process;
     });
 
-    function download() {
+    function exportFinal() {
         const link = document.createElement('a');
-        link.download = `FORENSIC_ID_EXPORT.png`;
+        link.download = `VERIFIED_TEXT_${Date.now()}.png`;
         link.href = canvas.toDataURL('image/png', 1.0);
         link.click();
-        log.innerText = `> EXPORT COMPLETE: File saved.`;
     }
 </script>
 </body>
