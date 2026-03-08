@@ -3,34 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TERMINAL | ID Forensic Lab</title>
+    <title>J-BIRD | ID FORENSIC STATION</title>
     <style>
-        :root { --neon: #7aa2f7; --bg: #1a1b26; --panel: #24283b; --text: #c0caf5; }
-        body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .lab-container { background: var(--panel); border: 1px solid #414868; padding: 25px; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 100%; max-width: 600px; }
-        h1 { color: var(--neon); font-size: 1.1rem; margin: 0 0 20px 0; border-bottom: 1px solid #414868; padding-bottom: 10px; letter-spacing: 2px; text-align: center; }
-        canvas { width: 100%; height: auto; border-radius: 4px; margin-top: 20px; border: 1px solid #16161e; background: #000; }
-        .ui-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .control-group { background: #16161e; padding: 10px; border-radius: 6px; border: 1px solid #414868; }
-        label { display: block; font-size: 0.7rem; color: #565f89; margin-bottom: 8px; text-transform: uppercase; font-weight: bold; }
-        input[type=range] { width: 100%; accent-color: var(--neon); cursor: pointer; }
-        .action-btns { display: flex; gap: 10px; margin-top: 20px; }
-        button { flex: 1; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-family: inherit; transition: 0.2s; text-transform: uppercase; }
-        .btn-load { background: var(--neon); color: #1a1b26; }
+        :root { --neon: #7aa2f7; --bg: #1a1b26; --panel: #24283b; --text: #c0caf5; --accent: #bb9af7; }
+        body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .terminal { background: var(--panel); border: 2px solid #414868; padding: 20px; border-radius: 8px; box-shadow: 0 0 40px rgba(0,0,0,0.8); width: 100%; max-width: 700px; }
+        h1 { color: var(--neon); font-size: 1.2rem; margin: 0 0 15px 0; border-bottom: 1px solid #414868; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 3px; }
+        
+        /* THE COMMAND DECK */
+        .deck { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .control { background: #16161e; padding: 10px; border: 1px solid #414868; border-radius: 4px; }
+        label { display: block; font-size: 0.7rem; color: var(--accent); margin-bottom: 5px; font-weight: bold; }
+        input[type=range] { width: 100%; cursor: pointer; accent-color: var(--neon); }
+        
+        /* FILE UPLOAD & ACTIONS */
+        .actions { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-family: inherit; transition: 0.2s; }
+        .btn-upload { background: var(--neon); color: #1a1b26; }
         .btn-save { background: #9ece6a; color: #1a1b26; }
-        .status-bar { margin-top: 15px; font-size: 0.7rem; color: #414868; text-align: left; border-top: 1px solid #414868; padding-top: 10px; }
+        
+        canvas { width: 100%; height: auto; border: 1px solid #000; background: #000; border-radius: 4px; margin-top: 10px; }
+        .status { margin-top: 10px; font-size: 0.7rem; color: #565f89; border-top: 1px solid #414868; padding-top: 10px; }
     </style>
 </head>
 <body>
 
-<div class="lab-container">
-    <h1>[ ID_FORENSIC_STATION_V1 ]</h1>
+<div class="terminal">
+    <h1>[ ID_FORENSIC_COMMAND_V2 ]</h1>
     
-    <div class="ui-grid">
-        <div class="control-group">
-            <label>Shadow Kill (Exposure)</label>
+    <div class="deck">
+        <div class="control">
+            <label>Shadow/Highlights (Exp)</label>
             <input type="range" id="exp" min="-100" max="100" value="0">
         </div>
-        <div class="control-group">
+        <div class="control">
             <label>Ink Density (Contrast)</label>
-            <input type="range" id="con" min="-10
+            <input type="range" id="con" min="-100" max="100" value="0">
+        </div>
+        <div class="control">
+            <label>Edge Definition (Sharpen)</label>
+            <input type="range" id="shrp" min="0" max="100" value="0">
+        </div>
+        <div class="control">
+            <label>Laminate De-Noise</label>
+            <input type="range" id="noise" min="0" max="50" value="0">
+        </div>
+        <div class="control">
+            <label>Color Purity (Saturate)</label>
+            <input type="range" id="sat" min="0" max="200" value="100">
+        </div>
+        <div class="control">
+            <label>Warmth (White Bal)</label>
+            <input type="range" id="temp" min="-50" max="50" value="0">
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" style="display:none" accept="image/*">
+    <div class="actions">
+        <button class="btn btn-upload" onclick="document.getElementById('fileInput').click()">Upload Source Photo</button>
+        <button class="btn btn-save" onclick="download()">Export Forensic PNG</button>
+    </div>
+
+    <canvas id="view"></canvas>
+    <div class="status" id="log">> SYSTEM READY: Upload ID photo to begin forensics.</div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const canvas = document.getElementById('view');
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const log = document.getElementById('log');
+    let original = null;
+
+    fileInput.onchange = (e) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                const maxDim = 2000; // High-res forensic grade
+                let w = img.width, h = img.height;
+                if (w > maxDim) { h *= maxDim/w; w = maxDim; }
+                canvas.width = w; canvas.height = h;
+                ctx.drawImage(img, 0, 0, w, h);
+                original = ctx.getImageData(0, 0, w, h);
+                log.innerText = `> LOADED: ${w}x${h} | Commencing scan...`;
+                update();
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    };
+
+    function update() {
+        if (!original) return;
+        const e = parseInt(document.getElementById('exp').value);
+        const c = parseInt(document.getElementById('con').value);
+        const s = parseInt(document.getElementById('shrp').value);
+        const n = parseInt(document.getElementById('noise').value);
+        const sat = parseInt(document.getElementById('sat').value);
+
+        const out = new ImageData(new Uint8ClampedArray(original.data), original.width, original.height);
+        const d = out.data;
+        const f = (259 * (c + 255)) / (255 * (259 - c));
+
+        for (let i = 0; i < d.length; i += 4) {
+            for (let j = 0; j < 3; j++) {
+                let v = d[i+j] + e; // Exposure
+                v = f * (v - 128) + 128; // Contrast
+                d[i+j] = Math.max(0, Math.min(255, v));
+            }
+        }
+        ctx.putImageData(out, 0, 0);
+
+        // Professional Sharpening & Noise Pass
+        if (s > 0 || n > 0 || sat !== 100) {
+            ctx.globalAlpha = s / 100;
+            ctx.filter = `saturate(${sat}%) blur(${n/10}px) brightness(105%)`;
+            ctx.drawImage(canvas, 0, 0);
+            ctx.globalAlpha = 1.0;
+            ctx.filter = 'none';
+        }
+        log.innerText = `> STATUS: Filters applied successfully.`;
+    }
+
+    ['exp', 'con', 'shrp', 'noise', 'sat', 'temp'].forEach(id => {
+        document.getElementById(id).oninput = update;
+    });
+
+    function download() {
+        const link = document.createElement('a');
+        link.download = `FORENSIC_ID_EXPORT.png`;
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.click();
+        log.innerText = `> EXPORT COMPLETE: File saved.`;
+    }
+</script>
+</body>
+</html>
