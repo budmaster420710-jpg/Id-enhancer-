@@ -1,123 +1,130 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ID Clarity Engine | Local AI</title>
-    <!-- Loading the AI 'Brain' from CDN -->
-    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+ <title>ID Clarity Engine (Manual Mode)</title>
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #38bdf8; }
-        body { background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-        .container { background: var(--card); padding: 2rem; border-radius: 1rem; border: 1px solid #334155; max-width: 800px; width: 100%; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
-        h1 { color: var(--accent); margin-top: 0; }
-        #status { margin: 15px 0; font-weight: bold; color: #94a3b8; }
-        input[type="file"] { background: #334155; padding: 10px; border-radius: 8px; color: white; cursor: pointer; border: none; width: 100%; box-sizing: border-box; }
-        canvas { margin-top: 20px; border-radius: 0.5rem; max-width: 100%; height: auto; border: 1px solid #475569; }
-        .info { font-size: 0.8rem; color: #64748b; margin-top: 20px; }
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 { margin: 0; color: var(--accent); font-size: 1.8rem; }
+        p { color: var(--text-secondary); font-size: 0.9rem; }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn:hover { background: var(--accent-hover); }
+        .btn-reset { background: #ef4444; }
+        .btn-reset:hover { background: #dc2626; }
+        .btn:disabled { background: #475569; cursor: not-allowed; }
+
+        #canvas-container {
+            position: relative;
+            margin: 0 auto;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            background: #000;
+            cursor: crosshair;
+        }
+
+        canvas {
+            max-width: 100%;
+            display: block;
+        }
+
+        .instructions {
+            background: #1e293b;
+            border-left: 4px solid var(--accent);
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        input[type="file"] { display: none; }
     </style>
-</head>
-<body>
+
+
 
 <div class="container">
-    <h1>ID Clarity Engine</h1>
-    <p>Sharpen document text while preserving face integrity.</p>
-    
-    <div id="status">🧠 Initializing AI Brain...</div>
-    <input type="file" id="imageUpload" accept="image/*" disabled>
-    
-    <canvas id="outputCanvas"></canvas>
+    <header>
+        <h1>ID Clarity Engine</h1>
+        <p>Manual Mode: Protect identity, sharpen details.</p>
+    </header>
 
-    <div class="info">
-        <strong>Privacy Note:</strong> All processing happens in your browser RAM. 
-        No images are uploaded to any server.
+    <div class="controls">
+        <label for="upload" class="btn">Upload ID Image</label>
+        <input type="file" id="upload" accept="image/*">
+        
+        <button id="processBtn" class="btn" disabled="">Apply Sharpening</button>
+        <button id="resetBtn" class="btn btn-reset">Reset</button>
+        <button id="downloadBtn" class="btn" disabled="">Download Result</button>
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <div class="instructions">
+        <strong>How to use:</strong> 1. Upload an image. 2. <strong>Click and drag</strong> a box over the face to protect it from sharpening. 3. Click "Apply Sharpening" to process the background.
     </div>
 </div>
 
-<script>
-    const imageUpload = document.getElementById('imageUpload');
-    const canvas = document.getElementById('outputCanvas');
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    const status = document.getElementById('status');
 
-    // 1. Load the AI Models from CDN
-    async function loadBrain() {
-        const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
-        try {
-            await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
-            status.innerText = "✅ Brain Ready. Upload ID Photo.";
-            status.style.color = "#4ade80";
-            imageUpload.disabled = false;
-        } catch (e) {
-            status.innerText = "❌ Error loading AI models.";
-            console.error(e);
-        }
-    }
 
-    imageUpload.addEventListener('change', async () => {
-        const file = imageUpload.files[0];
-        if (!file) return;
 
-        status.innerText = "🔍 Analyzing face locations...";
-        const img = await faceapi.bufferToImage(file);
-        
-        // Setup Canvas size
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
 
-        // Detect Faces to protect them
-        const detections = await faceapi.detectAllFaces(img);
-        
-        status.innerText = "⚡ Sharpening text areas...";
-        // Small delay to allow UI to update
-        setTimeout(async () => {
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const sharpenedData = applySharpen(imageData);
+"""
 
-            // Apply sharpened image to canvas
-            ctx.putImageData(sharpenedData, 0, 0);
-            
-            // 2. Restore Face Area: Paste original face back over sharpened image
-            detections.forEach(det => {
-                const { x, y, width, height } = det.box;
-                const buffer = 30; // Extra protection margin
-                ctx.drawImage(img, x-buffer, y-buffer, width+(buffer*2), height+(buffer*2), x-buffer, y-buffer, width+(buffer*2), height+(buffer*2));
-            });
-
-            status.innerText = "✨ Enhancement Complete.";
-        }, 100);
-    });
-
-    // Sharpening Algorithm (Convolution Matrix)
-    function applySharpen(imageData) {
-        const w = imageData.width, h = imageData.height;
-        const input = imageData.data;
-        const output = new ImageData(new Uint8ClampedArray(input), w, h);
-        const dst = output.data;
-
-        // Laplacian kernel for edge enhancement
-        const kernel = [ 0, -1, 0, -1, 5, -1, 0, -1, 0 ];
-
-        for (let y = 1; y < h - 1; y++) {
-            for (let x = 1; x < w - 1; x++) {
-                const idx = (y * w + x) * 4;
-                for (let c = 0; c < 3; c++) { // Red, Green, Blue
-                    let sum = 0;
-                    for (let ky = -1; ky <= 1; ky++) {
-                        for (let kx = -1; kx <= 1; kx++) {
-                            const pixelIdx = ((y + ky) * w + (x + kx)) * 4 + c;
-                            sum += input[pixelIdx] * kernel[(ky + 1) * 3 + (kx + 1)];
-                        }
-                    }
-                    dst[idx + c] = Math.min(255, Math.max(0, sum));
-                }
-            }
-        }
-        return output;
-    }
-
-    loadBrain();
-</script>
-</body>
-</html>
+# Save the file to /home/user/index.html
+file_path = "/home/user/index.html"
+with open(file_path, "w") as f
